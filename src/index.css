@@ -183,4 +183,114 @@ body {
 
 .animate-pulse {
   animation: pulse-glow 2s infinite;
-}@keyframes spin-slow { 100% { transform: rotate(360deg); } }\n.animate-spin-slow { animation: spin-slow 10s linear infinite; transform-origin: center; }
+}
+
+@keyframes spin-slow { 100% { transform: rotate(360deg); } }
+.animate-spin-slow { animation: spin-slow 10s linear infinite; transform-origin: center; }
+
+/* Diamond Crystal Cards */
+.diamond-card-container {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  padding: 40px 0;
+}
+
+.diamond-card {
+  position: relative;
+  width: 300px;
+  background: linear-gradient(180deg, #130a2f 0%, #0c081f 100%);
+  border-radius: 20px;
+  padding: 60px 24px 30px 24px;
+  text-align: center;
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.diamond-card:hover {
+  transform: translateY(-5px);
+}
+
+.diamond-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+  background: var(--card-glow, #00E5FF);
+  filter: blur(20px);
+  opacity: 0.6;
+  z-index: 0;
+}
+
+.diamond-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.diamond-icon-wrapper {
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 80px;
+  z-index: 2;
+  /* Glowing drop shadow that matches the crystal color */
+  filter: drop-shadow(0 0 15px var(--card-glow, #B200FF));
+}
+
+.diamond-icon-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.diamond-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #fff;
+}
+
+.diamond-desc {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.6;
+  flex-grow: 1;
+}
+
+.diamond-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.diamond-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 500;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.diamond-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--card-glow, #B200FF);
+}
