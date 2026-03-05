@@ -8,15 +8,21 @@ export default function RepoAnalyzer() {
   const [repoUrl, setRepoUrl] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
+  const [metrics, setMetrics] = useState(null);
+  const [languageBreakdown, setLanguageBreakdown] = useState(null);
   const [statusText, setStatusText] = useState('');
   const [hasAnalyzed, setHasAnalyzed] = useState(false);
+  const [showDashboard, setShowDashboard] = useState(false);
 
   const handleAnalyze = async () => {
     if (!repoUrl) return;
 
     setIsAnalyzing(true);
     setHasAnalyzed(false);
+    setShowDashboard(false);
     setSuggestions([]);
+    setMetrics(null);
+    setLanguageBreakdown(null);
 
     try {
       // Extract owner and repo
@@ -53,6 +59,39 @@ export default function RepoAnalyzer() {
         (f.path.endsWith('.js') || f.path.endsWith('.jsx') || f.path.endsWith('.ts') || f.path.endsWith('.tsx') || f.path.endsWith('.py'))
       );
 
+      // Determine real language breakdown from the repo tree
+      const extensionToLang = {
+        '.js': 'JavaScript', '.jsx': 'React',
+        '.ts': 'TypeScript', '.tsx': 'React (TS)',
+        '.py': 'Python', '.html': 'HTML', '.css': 'CSS',
+        '.json': 'JSON', '.md': 'Markdown', '.java': 'Java',
+        '.cpp': 'C++', '.c': 'C', '.cs': 'C#', '.go': 'Go', '.rs': 'Rust',
+        '.rb': 'Ruby', '.php': 'PHP'
+      };
+
+      const langCounts = {};
+      let totalBlobs = 0;
+      files.forEach(f => {
+        if (f.type === 'blob') {
+          const match = f.path.match(/\.[0-9a-z]+$/i);
+          const ext = match ? match[0].toLowerCase() : '';
+          if (extensionToLang[ext]) {
+            const lang = extensionToLang[ext];
+            langCounts[lang] = (langCounts[lang] || 0) + 1;
+            totalBlobs++;
+          }
+        }
+      });
+
+      const calculatedLanguageBreakdown = {};
+      if (totalBlobs > 0) {
+        for (const [lang, count] of Object.entries(langCounts)) {
+          calculatedLanguageBreakdown[lang] = Math.round((count / totalBlobs) * 100);
+        }
+      } else {
+        calculatedLanguageBreakdown['Unknown'] = 100;
+      }
+
       if (supportedFiles.length === 0) {
         setStatusText("No supported code files found to analyze.");
         setIsAnalyzing(false);
@@ -87,6 +126,9 @@ export default function RepoAnalyzer() {
 
       if (analysisResult && analysisResult.suggestions) {
         setSuggestions(analysisResult.suggestions);
+        if (analysisResult.metrics) setMetrics(analysisResult.metrics);
+        // Use our real calculate percentages!
+        setLanguageBreakdown(calculatedLanguageBreakdown);
       } else {
         setSuggestions(["*Mooo...* I couldn't find anything to suggest. The code looks okay or I got confused!"]);
       }
@@ -100,6 +142,121 @@ export default function RepoAnalyzer() {
     }
 
     setIsAnalyzing(false);
+  };
+
+  // --- Dashboard Component Helper ---
+  const renderDashboard = () => {
+    if (!metrics || !languageBreakdown) return null;
+
+    // Convert string values to numbers just in case Gemini returned "85%"
+    const safeNumber = (val) => {
+      if (typeof val === 'number') return val;
+      if (typeof val === 'string') return parseInt(val.replace(/\D/g, ''), 10) || 0;
+      return 0;
+    };
+
+    // Sort languages by highest percentage
+    const sortedLangs = Object.entries(languageBreakdown)
+      .map(([lang, pct]) => ({ lang, pct: safeNumber(pct) }))
+      .sort((a, b) => b.pct - a.pct);
+
+    const colors = ['var(--color-cyan)', 'var(--color-green)', 'var(--accent-purple)', '#FF8C00', '#FF1493', 'var(--color-red)'];
+
+    const legendItems = sortedLangs.map((item, index) => {
+      return {
+        ...item,
+        color: colors[index % colors.length]
+      };
+    });
+
+    const getProgressColor = (val) => {
+      const num = safeNumber(val);
+      if (num >= 80) return 'var(--color-green)';
+      if (num >= 50) return '#facc15'; // yellow
+      return 'var(--color-red)';
+    };
+
+    return (
+      <div style={{ width: '100%', maxWidth: '800px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <button
+          className="btn btn-secondary"
+          onClick={() => setShowDashboard(false)}
+          style={{ alignSelf: 'flex-start', padding: '8px 16px', borderRadius: '12px' }}
+        >
+          ← Back to Moo-ntor
+        </button>
+
+        <div className="layout-split" style={{ display: 'flex', gap: '24px' }}>
+          {/* Left: Metrics */}
+          <div className="glass-card" style={{ flex: 1, padding: '24px', background: 'var(--bg-primary)', border: '4px solid #333' }}>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 900, marginBottom: '20px', color: 'var(--text-primary)' }}>Code Metrics</h2>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {[
+                { label: 'Efficiency', value: metrics.efficiency },
+                { label: 'Quality', value: metrics.quality },
+                { label: 'Best Practices', value: metrics.bestPractices },
+                { label: 'Time Complexity', value: metrics.timeComplexity }
+              ].map(metric => (
+                <div key={metric.label}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontWeight: 'bold' }}>
+                    <span>{metric.label}</span>
+                    <span>{metric.value}%</span>
+                  </div>
+                  {/* Minecraft style progress bar */}
+                  <div style={{ width: '100%', height: '28px', background: '#333', border: '4px solid #111', padding: '2px', boxShadow: 'inset 0 4px 0 rgba(0,0,0,0.3)' }}>
+                    <div style={{
+                      width: `${safeNumber(metric.value)}%`,
+                      height: '100%',
+                      background: getProgressColor(metric.value),
+                      transition: 'width 1s ease-out'
+                    }}></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right: Languages Block Bar */}
+          <div className="glass-card" style={{ flex: 1, padding: '24px', background: 'var(--bg-primary)', border: '4px solid #333', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 900, marginBottom: '24px', color: 'var(--text-primary)' }}>Languages</h2>
+
+            {/* Segmented Minecraft Block Bar */}
+            <div style={{
+              width: '100%',
+              height: '40px',
+              display: 'flex',
+              background: '#333',
+              border: '4px solid #111',
+              padding: '2px',
+              marginBottom: '32px',
+              boxShadow: 'inset 0 4px 0 rgba(0,0,0,0.3)',
+              borderRadius: '2px'
+            }}>
+              {legendItems.map((item) => (
+                <div key={item.lang} style={{
+                  width: `${item.pct}%`,
+                  height: '100%',
+                  background: item.color,
+                  borderRight: '2px solid rgba(0,0,0,0.2)',
+                  transition: 'width 1s ease-out'
+                }} title={`${item.lang} (${item.pct}%)`}></div>
+              ))}
+            </div>
+
+            {/* Legend */}
+            <div style={{ width: '100%', display: 'flex', flexWrap: 'wrap', gap: '16px', justifyContent: 'center' }}>
+              {legendItems.map(item => (
+                <div key={item.lang} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold' }}>
+                  <div style={{ width: '20px', height: '20px', background: item.color, border: '4px solid #333' }}></div>
+                  <span>{item.lang} ({item.pct}%)</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -191,12 +348,15 @@ export default function RepoAnalyzer() {
 
         {/* We wrap Mascot in a container that looks like a stage */}
         <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-          <div style={{ width: '100%', maxWidth: '600px', minHeight: '400px', height: 'auto', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: '20px' }}>
-            {(isAnalyzing || hasAnalyzed || statusText) ? (
+          <div style={{ width: '100%', maxWidth: '800px', minHeight: '400px', height: 'auto', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: '20px' }}>
+            {showDashboard ? (
+              renderDashboard()
+            ) : (isAnalyzing || hasAnalyzed || statusText) ? (
               <Mascot
                 state={isAnalyzing ? 'typing' : 'idle'}
                 isAnalyzing={isAnalyzing}
                 suggestions={suggestions}
+                actionLink={metrics ? { label: 'View Dashboard →', onClick: () => setShowDashboard(true) } : null}
               />
             ) : (
               <div style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>

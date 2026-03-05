@@ -115,6 +115,8 @@ STRICT RULES:
 - Use simple, encouraging language.
 - Focus on time/space complexity, cleaner syntax, or logic improvement.
 
+Additionally, analyze the overall codebase and provide quantitative metrics (0-100) and a percentage breakdown of the languages detected based on the code provided.
+
 Code:
 ${code}
 
@@ -124,7 +126,18 @@ Return STRICT JSON:
     "Mooo... *chews cud* I see a nested loop here! You might want to use a HashMap to make this O(n) instead of O(n²).",
     "*sniffs* This variable could be a 'const' instead of 'let'. It keeps the grass greener!",
     "Mooo! Great job overall. Just remember to return early to save processing time!"
-  ]
+  ],
+  "metrics": {
+    "efficiency": 85,
+    "quality": 92,
+    "bestPractices": 78,
+    "timeComplexity": 80
+  },
+  "languageBreakdown": {
+    "JavaScript": 70,
+    "HTML": 20,
+    "CSS": 10
+  }
 }
 `;
 

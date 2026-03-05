@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ChevronRight, ChevronLeft, Bot } from 'lucide-react';
 
-export default function Mascot({ state = 'idle', suggestions = [], isAnalyzing = false }) {
+export default function Mascot({ state = 'idle', suggestions = [], isAnalyzing = false, actionLink = null }) {
     const [currentStep, setCurrentStep] = useState(0);
 
     const handleNext = () => {
@@ -80,6 +80,26 @@ export default function Mascot({ state = 'idle', suggestions = [], isAnalyzing =
                     <>
                         <div style={{ flex: 1, fontSize: '1.1rem', lineHeight: 1.6, fontWeight: 500, overflowWrap: 'break-word', wordWrap: 'break-word', hyphens: 'auto' }}>
                             {suggestions[currentStep]}
+                            {/* Render action link on the very last step if provided */}
+                            {currentStep === suggestions.length - 1 && actionLink && (
+                                <div style={{ marginTop: '12px' }}>
+                                    <button
+                                        onClick={actionLink.onClick}
+                                        style={{
+                                            background: 'none',
+                                            border: 'none',
+                                            color: 'var(--color-cyan)',
+                                            textDecoration: 'underline',
+                                            fontWeight: 'bold',
+                                            cursor: 'pointer',
+                                            fontSize: '1rem',
+                                            padding: 0
+                                        }}
+                                    >
+                                        {actionLink.label}
+                                    </button>
+                                </div>
+                            )}
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', borderTop: '2px dashed #ccc', paddingTop: '16px' }}>
                             <button
