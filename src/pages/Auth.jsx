@@ -43,7 +43,7 @@ export default function Auth() {
                     </div>
                     <h2 style={{ fontSize: '2rem', fontWeight: 800 }}>{isLogin ? 'Welcome Back' : 'Create Account'}</h2>
                     <p style={{ color: 'var(--text-secondary)' }}>
-                        {isLogin ? 'Enter your credentials to continue your journey' : 'Join CodeQuest AI and start leveling up'}
+                        {isLogin ? 'Enter your credentials to continue your journey' : 'Join CodeClash and start leveling up!'}
                     </p>
                 </div>
 

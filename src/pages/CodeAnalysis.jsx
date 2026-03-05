@@ -4,6 +4,7 @@ import { Bot, Zap, Code, Terminal, Loader2 } from 'lucide-react';
 import { getDynamicAnalysis, getStaticAnalysis } from '../lib/gemini';
 import { useAuth } from '../contexts/AuthContext';
 import Mascot from '../components/Mascot';
+import { PropsList } from '../components/MinecraftProps';
 
 export default function CodeAnalysis() {
     const [code, setCode] = useState('function calculateSum(arr) {\n  let sum = 0;\n  for(let i=0; i<arr.length; i++) {\n    for(let j=0; j<arr.length; j++) {\n       if(i === j) sum += arr[i];\n    }\n  }\n  return sum;\n}\n\nconsole.log(calculateSum([1, 2, 3, 4]));');
@@ -92,11 +93,17 @@ export default function CodeAnalysis() {
     };
 
     return (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', height: 'calc(100vh - 120px)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', height: 'calc(100vh - 120px)', position: 'relative' }}>
+            {/* Fun background props behind the cards */}
+            <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', zIndex: 0, pointerEvents: 'none' }}>
+                <PropsList.BlockyPortal style={{ position: 'absolute', bottom: '10%', left: '-50px', opacity: 0.15, transform: 'scale(1.5)' }} className="animate-float" />
+                <PropsList.PixelChest style={{ position: 'absolute', top: '10%', right: '10%', opacity: 0.8, animationDelay: '1.5s' }} className="animate-float" />
+            </div>
+
             {/* Left Panel: Editor & Console */}
-            <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', padding: 0 }}>
-                <div style={{ padding: '16px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600 }}>
+            <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', padding: 0, position: 'relative', zIndex: 1 }}>
+                <div style={{ padding: '16px', borderBottom: '4px solid var(--color-sky)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600, color: 'var(--text-primary)' }}>
                         <Code className="text-cyan" size={20} /> Code Editor
                     </div>
                     <div style={{ display: 'flex', gap: '12px' }}>
@@ -138,7 +145,7 @@ export default function CodeAnalysis() {
                     </div>
 
                     {/* Console Output Panel */}
-                    <div style={{ flex: 1, background: '#0D1117', borderTop: '1px solid rgba(255,255,255,0.05)', padding: '16px', overflowY: 'auto' }}>
+                    <div style={{ flex: 1, background: '#0D1117', borderTop: '4px solid var(--color-sky)', padding: '16px', overflowY: 'auto' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)', marginBottom: '8px', fontSize: '0.9rem', fontWeight: 600 }}>
                             <Terminal size={14} /> Output Console
                         </div>
@@ -162,9 +169,9 @@ export default function CodeAnalysis() {
             </div>
 
             {/* Right Panel: Mascot Dialogue */}
-            <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', padding: 0 }}>
-                <div style={{ padding: '16px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600 }}>
+            <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', padding: 0, position: 'relative', zIndex: 1 }}>
+                <div style={{ padding: '16px', borderBottom: '4px solid var(--color-sky)', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600, color: 'var(--text-primary)' }}>
                         <Bot className="text-purple" size={20} /> AI Moo-ntor
                     </div>
                 </div>

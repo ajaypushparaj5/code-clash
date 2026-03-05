@@ -4,6 +4,7 @@ import Editor from '@monaco-editor/react';
 import { Target, CheckCircle2, XCircle, Code, Zap, Loader2 } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../contexts/AuthContext';
+import { PropsList } from '../components/MinecraftProps';
 
 export default function Practice() {
     const { courseId } = useParams();
@@ -82,9 +83,16 @@ export default function Practice() {
     }
 
     return (
-        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 400px) 1fr', gap: '24px', height: 'calc(100vh - 120px)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 400px) 1fr', gap: '24px', height: 'calc(100vh - 120px)', position: 'relative' }}>
+
+            {/* Fun background props behind the cards */}
+            <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', zIndex: 0, pointerEvents: 'none' }}>
+                <PropsList.BlockyCrystal style={{ position: 'absolute', top: '10px', left: '20px', opacity: 0.8 }} className="animate-float" />
+                <PropsList.PixelChest style={{ position: 'absolute', bottom: '20px', right: '30px', transform: 'scale(1.2)', opacity: 0.9, animationDelay: '1s' }} className="animate-float" />
+            </div>
+
             {/* Left Panel: Problem Statement */}
-            <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', overflowY: 'auto', padding: '24px' }}>
+            <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', overflowY: 'auto', padding: '24px', position: 'relative', zIndex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
                     <span style={{
                         background: currentQuestion.difficulty === 'Easy' ? 'rgba(0, 255, 102, 0.1)' : 'rgba(255, 171, 0, 0.1)',
@@ -98,13 +106,13 @@ export default function Practice() {
                     </span>
                     <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{currentQuestion.language}</span>
                 </div>
-                <h2 style={{ fontSize: '1.8rem', marginBottom: '24px', fontWeight: 800 }}>{currentQuestion.title}</h2>
+                <h2 style={{ fontSize: '1.8rem', marginBottom: '24px', fontWeight: 800, color: 'var(--text-primary)' }}>{currentQuestion.title}</h2>
 
-                <div style={{ color: 'var(--text-secondary)', fontSize: '1rem', lineHeight: 1.6, marginBottom: '24px' }} dangerouslySetInnerHTML={{ __html: currentQuestion.description }}>
+                <div style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', lineHeight: 1.6, marginBottom: '24px' }} dangerouslySetInnerHTML={{ __html: currentQuestion.description }}>
                 </div>
 
                 {currentQuestion.example && (
-                    <div style={{ background: 'var(--bg-primary)', padding: '16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)', marginBottom: '24px' }}>
+                    <div style={{ background: 'var(--bg-primary)', padding: '16px', borderRadius: '8px', border: '4px solid var(--color-sky)', marginBottom: '24px' }}>
                         <p style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '8px' }}>Example:</p>
                         <p className="code-font" style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', whiteSpace: 'pre-wrap' }}>
                             {currentQuestion.example}
@@ -114,11 +122,11 @@ export default function Practice() {
             </div>
 
             {/* Right Panel: Editor + Results */}
-            <div style={{ display: 'grid', gridTemplateRows: '1fr auto', gap: '24px' }}>
+            <div style={{ display: 'grid', gridTemplateRows: '1fr auto', gap: '24px', position: 'relative', zIndex: 1 }}>
 
                 {/* Editor Wrapper */}
                 <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', padding: 0 }}>
-                    <div style={{ padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-secondary)' }}>
+                    <div style={{ padding: '12px 16px', borderBottom: '4px solid var(--color-sky)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-secondary)' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
                             <Code size={16} /> {currentQuestion.language || 'Code'}
                         </div>
@@ -144,7 +152,7 @@ export default function Practice() {
                         <Target size={18} /> Console Output
                     </h3>
 
-                    <div style={{ flex: 1, background: 'var(--bg-primary)', borderRadius: '8px', padding: '16px', overflowY: 'auto', border: '1px solid rgba(255,255,255,0.05)' }}>
+                    <div style={{ flex: 1, background: 'var(--bg-primary)', borderRadius: '8px', padding: '16px', overflowY: 'auto', border: '4px solid var(--color-sky)' }}>
                         {status === 'idle' && (
                             <p style={{ color: 'var(--text-secondary)' }}>Run your code to see results & performance analysis.</p>
                         )}

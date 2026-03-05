@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { BrainCircuit, Code } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
+import { PropsList } from '../components/MinecraftProps';
 
 export default function Learn() {
     const [courses, setCourses] = useState([]);
@@ -28,14 +29,20 @@ export default function Learn() {
 
     return (
         <div style={{ padding: '60px 20px', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            {/* Fun Background Props */}
+            <PropsList.BlockyCrystal style={{ position: 'absolute', top: '150px', left: '5%' }} className="animate-float" />
+            <PropsList.PixelChest style={{ position: 'absolute', top: '250px', right: '5%', animationDelay: '1s' }} className="animate-float" />
+            <PropsList.RedCharacter style={{ position: 'absolute', bottom: '100px', left: '10%', opacity: 0.5, animationDelay: '2s' }} className="animate-float" />
+
             <h1 style={{
-                fontSize: '3rem',
+                fontSize: '3.5rem',
                 marginBottom: '50px',
-                textShadow: '0 0 20px rgba(178, 0, 255, 0.8)',
-                fontWeight: '800',
-                color: '#fff',
+                fontWeight: '900',
+                color: 'var(--text-primary)',
                 fontFamily: "'Outfit', sans-serif",
-                textAlign: 'center'
+                textAlign: 'center',
+                position: 'relative',
+                zIndex: 10
             }}>
                 Explore Courses
             </h1>
@@ -50,27 +57,27 @@ export default function Learn() {
                 }
 
                 .crystal-card {
-                    background: linear-gradient(180deg, rgba(20, 15, 35, 0.9) 0%, rgba(10, 5, 20, 0.9) 100%);
+                    background: var(--bg-secondary);
                     border-radius: 16px;
-                    border: 1px solid var(--theme-color-dim);
+                    border: 4px solid var(--color-sky);
                     padding: 24px;
                     display: flex;
                     flex-direction: column;
-                    box-shadow: 0 0 20px var(--theme-color-dim), inset 0 0 20px rgba(0,0,0,0.5);
-                    transition: transform 0.3s ease, box-shadow 0.3s ease;
+                    box-shadow: var(--shadow-flat);
+                    transition: transform 0.1s ease, box-shadow 0.1s ease;
                     position: relative;
                     overflow: hidden;
                 }
 
                 .crystal-card:hover {
-                    transform: translateY(-5px);
-                    box-shadow: 0 0 30px var(--theme-color-glow), inset 0 0 20px rgba(0,0,0,0.5);
-                    border-color: var(--theme-color-glow);
+                    transform: translateY(-4px);
+                    box-shadow: var(--shadow-flat-hover);
+                    border-color: var(--color-cyan);
                 }
 
                 .crystal-image-container {
-                    background: rgba(10, 5, 20, 0.5);
-                    border: 1px solid var(--theme-color-glow);
+                    background: var(--bg-primary);
+                    border: 4px solid var(--color-sky);
                     border-radius: 12px;
                     height: 220px;
                     display: flex;
@@ -78,7 +85,6 @@ export default function Learn() {
                     justify-content: center;
                     margin-bottom: 24px;
                     position: relative;
-                    box-shadow: inset 0 0 30px var(--theme-color-dim);
                     overflow: hidden;
                 }
                 
@@ -145,30 +151,30 @@ export default function Learn() {
                 .crystal-btn {
                     flex: 1;
                     padding: 12px;
-                    background: transparent;
-                    border: 1px solid var(--theme-color-dim);
-                    border-radius: 8px;
-                    color: #fff;
+                    background: var(--bg-card);
+                    border: 4px solid var(--color-sky);
+                    border-radius: 9999px;
+                    color: var(--text-primary);
                     font-family: 'Outfit', sans-serif;
                     font-size: 0.95rem;
-                    font-weight: 600;
+                    font-weight: 800;
                     cursor: pointer;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     gap: 8px;
-                    transition: all 0.2s;
+                    transition: all 0.1s;
+                    box-shadow: 0 4px 0px rgba(0,0,0,0.5);
                 }
 
-                .crystal-btn:hover {
-                    background: var(--theme-color-dim);
-                    border-color: var(--theme-color);
-                    box-shadow: 0 0 15px var(--theme-color-dim);
+                .crystal-btn:active {
+                    transform: translateY(4px);
+                    box-shadow: 0 0px 0px rgba(0,0,0,0.5);
                 }
             `}</style>
 
             {loading ? (
-                <div style={{ textAlign: 'center', padding: '100px', color: '#B200FF' }}>
+                <div style={{ textAlign: 'center', padding: '100px', color: 'var(--accent-purple)' }}>
                     <BrainCircuit className="animate-pulse" size={48} style={{ margin: '0 auto' }} />
                     <p style={{ marginTop: '16px' }}>Loading Courses...</p>
                 </div>
@@ -198,7 +204,7 @@ export default function Learn() {
                                     <div className="crystal-title-line"></div>
                                 </div>
 
-                                <p className="crystal-desc">
+                                <p className="crystal-desc" style={{ color: 'var(--text-secondary)' }}>
                                     {course.description || "Explore this amazing course to level up your coding skills."}
                                 </p>
 

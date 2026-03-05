@@ -19,27 +19,42 @@ export default function Navbar() {
     ];
 
     return (
-        <nav className="glass-card" style={{
-            margin: '16px',
+        <nav style={{
+            background: 'var(--bg-primary)',
+            borderBottom: '4px solid var(--color-sky)',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
             padding: '16px 32px',
             position: 'sticky',
-            top: '16px',
-            zIndex: 50
+            top: '0',
+            zIndex: 50,
+            boxShadow: '0 4px 10px rgba(0,0,0,0.5)'
         }}>
             <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', color: 'var(--text-primary)' }}>
-                <Code2 size={32} className="text-cyan animate-pulse" />
+                {/* Pixelated Cow Logo */}
+                <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" style={{ width: '40px', height: '40px', filter: 'drop-shadow(0 2px 0px rgba(0,0,0,0.2))' }}>
+                    <rect x="8" y="12" width="16" height="14" fill="#fafafa" />
+                    <rect x="10" y="14" width="6" height="6" fill="#333" />
+                    <rect x="18" y="20" width="4" height="4" fill="#333" />
+                    <rect x="10" y="4" width="12" height="10" fill="#fafafa" />
+                    <rect x="8" y="2" width="2" height="4" fill="#e0e0e0" />
+                    <rect x="22" y="2" width="2" height="4" fill="#e0e0e0" />
+                    <rect x="6" y="6" width="4" height="2" fill="#333" />
+                    <rect x="22" y="6" width="4" height="2" fill="#333" />
+                    <rect x="10" y="10" width="12" height="4" fill="#ffb6c1" />
+                    <rect x="12" y="12" width="2" height="2" fill="#d87093" />
+                    <rect x="18" y="12" width="2" height="2" fill="#d87093" />
+                    <rect x="12" y="6" width="2" height="2" fill="#111" />
+                    <rect x="18" y="6" width="2" height="2" fill="#111" />
+                </svg>
                 <span style={{
                     fontSize: '1.5rem',
-                    fontWeight: 800,
-                    background: 'linear-gradient(90deg, var(--accent-cyan), var(--accent-purple))',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
+                    fontWeight: 900,
+                    color: 'var(--text-primary)',
                     letterSpacing: '-0.5px'
                 }}>
-                    CodeQuest AI
+                    CodeClash
                 </span>
             </Link>
 
@@ -74,15 +89,15 @@ export default function Navbar() {
                         display: 'flex',
                         alignItems: 'center',
                         gap: '8px',
-                        background: 'rgba(255, 255, 255, 0.05)',
+                        background: 'var(--bg-secondary)',
                         padding: '6px 16px',
                         borderRadius: '20px',
-                        border: '1px solid rgba(0, 229, 255, 0.2)',
-                        boxShadow: 'inset 0 0 10px rgba(0, 229, 255, 0.1)',
-                        transition: 'all 0.3s'
+                        border: '2px solid var(--color-sky)',
+                        boxShadow: '2px 2px 0px rgba(0,0,0,0.5)',
+                        transition: 'all 0.1s'
                     }}>
                         <Zap className="text-cyan animate-pulse" size={18} />
-                        <span style={{ fontWeight: 'bold' }}>XP: <span className="text-cyan">{xp}</span></span>
+                        <span style={{ fontWeight: '800' }}>XP: <span className="text-cyan">{xp}</span></span>
                     </div>
                     {user && <span style={{ fontSize: '0.7rem', color: 'var(--accent-purple)', fontWeight: 'bold', textTransform: 'uppercase' }}>{level}</span>}
                 </div>
