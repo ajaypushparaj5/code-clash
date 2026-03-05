@@ -266,18 +266,18 @@ export default function LearnCourse() {
                                 <p style={{ color: '#64748B', marginBottom: '32px', fontSize: '1.2rem', lineHeight: '1.6' }}>
                                     {selectedLesson.description}
                                 </p>
-                                <div style={{
-                                    color: '#334155',
-                                    lineHeight: '1.8',
-                                    whiteSpace: 'pre-wrap',
-                                    fontSize: '1.05rem',
-                                    background: '#F8FAFC',
-                                    padding: '32px',
-                                    borderRadius: '16px',
-                                    border: '1px solid #E2E8F0'
-                                }}>
-                                    {selectedLesson.content}
-                                </div>
+                                <div
+                                    style={{
+                                        color: '#334155',
+                                        lineHeight: '1.8',
+                                        fontSize: '1.05rem',
+                                        background: '#F8FAFC',
+                                        padding: '32px',
+                                        borderRadius: '16px',
+                                        border: '1px solid #E2E8F0'
+                                    }}
+                                    dangerouslySetInnerHTML={{ __html: selectedLesson.content }}
+                                />
 
                                 <div style={{ marginTop: '40px', borderTop: '1px solid #F1F5F9', paddingTop: '32px', display: 'flex', justifyContent: 'flex-end' }}>
                                     <button
