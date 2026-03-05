@@ -7,7 +7,8 @@ import Practice from './pages/Practice'
 import Leaderboard from './pages/Leaderboard'
 import Auth from './pages/Auth'
 import { AuthProvider } from './contexts/AuthContext'
-import LearnCourse from './pages/LearnCourse';
+import LearnCourse from './pages/LearnCourse'
+import RepoAnalyzer from "./pages/RepoAnalyzer";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           <Route path="learn" element={<Learn />} />
           <Route path="practice" element={<Practice />} />
           <Route path="leaderboard" element={<Leaderboard />} />
+          <Route path="repo-analyzer" element={<RepoAnalyzer />} />
           <Route path="auth" element={<Auth />} />
           <Route path="/learn/:courseId" element={<LearnCourse />} />
         </Route>
