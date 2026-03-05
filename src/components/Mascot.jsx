@@ -35,12 +35,13 @@ export default function Mascot({ state = 'idle', suggestions = [], isAnalyzing =
                 marginBottom: '20px',
                 position: 'relative',
                 minHeight: '150px',
+                height: 'auto', // Fix for text spilling out
                 width: '100%',
                 maxWidth: '400px',
                 boxShadow: '0 8px 0 rgba(0,0,0,0.2), inset 0 -4px 0 rgba(0,0,0,0.1)',
                 display: 'flex',
                 flexDirection: 'column',
-                fontFamily: '"Press Start 2P", "Fira Code", monospace', // Try to use a pixelated looking font if available
+                fontFamily: '"Press Start 2P", "Fira Code", monospace',
             }}>
                 {/* Speech Bubble Tail */}
                 <div style={{
@@ -77,7 +78,7 @@ export default function Mascot({ state = 'idle', suggestions = [], isAnalyzing =
                     </div>
                 ) : suggestions.length > 0 ? (
                     <>
-                        <div style={{ flex: 1, fontSize: '1.1rem', lineHeight: 1.6, fontWeight: 500 }}>
+                        <div style={{ flex: 1, fontSize: '1.1rem', lineHeight: 1.6, fontWeight: 500, overflowWrap: 'break-word', wordWrap: 'break-word', hyphens: 'auto' }}>
                             {suggestions[currentStep]}
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', borderTop: '2px dashed #ccc', paddingTop: '16px' }}>

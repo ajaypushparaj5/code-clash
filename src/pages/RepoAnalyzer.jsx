@@ -191,7 +191,7 @@ export default function RepoAnalyzer() {
 
         {/* We wrap Mascot in a container that looks like a stage */}
         <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-          <div style={{ width: '100%', maxWidth: '600px', height: '400px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: '100%', maxWidth: '600px', minHeight: '400px', height: 'auto', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: '20px' }}>
             {(isAnalyzing || hasAnalyzed || statusText) ? (
               <Mascot
                 state={isAnalyzing ? 'typing' : 'idle'}
