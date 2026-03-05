@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import Editor from '@monaco-editor/react';
 import { Target, CheckCircle2, XCircle, Code, Zap, Loader2 } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function Practice() {
+    const { courseId } = useParams();
     const [questions, setQuestions] = useState([]);
     const [currentIdx, setCurrentIdx] = useState(0);
     const [loading, setLoading] = useState(true);
@@ -16,17 +18,28 @@ export default function Practice() {
 
     useEffect(() => {
         fetchQuestions();
-    }, []);
+    }, [courseId]);
 
     const fetchQuestions = async () => {
         setLoading(true);
-        const { data, error } = await supabase
-            .from('coding_questions')
-            .select('*');
+        setStatus('idle');
+
+        let query = supabase.from('coding_questions').select('*');
+        if (courseId) {
+            query = query.eq('course_id', courseId);
+        }
+
+        const { data, error } = await query;
 
         if (data && data.length > 0) {
-            setQuestions(data);
-            setCode(data[0].starter_code || '');
+            // Shuffle to present random problems each time
+            const shuffled = [...data].sort(() => 0.5 - Math.random());
+            setQuestions(shuffled);
+            setCurrentIdx(0);
+            setCode(shuffled[0].starter_code || '');
+        } else {
+            setQuestions([]);
+            setCode('');
         }
         setLoading(false);
     };

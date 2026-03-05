@@ -8,7 +8,8 @@ import Leaderboard from './pages/Leaderboard'
 import Auth from './pages/Auth'
 import { AuthProvider } from './contexts/AuthContext'
 import LearnCourse from './pages/LearnCourse'
-import RepoAnalyzer from "./pages/RepoAnalyzer";
+import RepoAnalyzer from "./pages/RepoAnalyzer"
+import Translate from './pages/Translate'
 
 function App() {
   return (
@@ -19,10 +20,12 @@ function App() {
           <Route path="code" element={<CodeAnalysis />} />
           <Route path="learn" element={<Learn />} />
           <Route path="practice" element={<Practice />} />
+          <Route path="practice/:courseId" element={<Practice />} />
           <Route path="leaderboard" element={<Leaderboard />} />
           <Route path="repo-analyzer" element={<RepoAnalyzer />} />
           <Route path="auth" element={<Auth />} />
           <Route path="/learn/:courseId" element={<LearnCourse />} />
+          <Route path="translate" element={<Translate />} />
         </Route>
       </Routes>
     </AuthProvider>
