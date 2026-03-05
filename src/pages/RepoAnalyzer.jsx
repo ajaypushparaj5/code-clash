@@ -1,112 +1,212 @@
 import React, { useState } from 'react';
-import { Search, ShieldAlert, FileCode, Activity, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Search, Github, Loader2 } from 'lucide-react';
+import { PropsList } from '../components/MinecraftProps';
+import Mascot from '../components/Mascot';
+import { getStaticAnalysis } from '../lib/gemini';
 
-const RepoAnalyzer = () => {
+export default function RepoAnalyzer() {
   const [repoUrl, setRepoUrl] = useState('');
-  
-  // Mock data based on your screenshot
-  const results = {
-    score: 75,
-    filesScanned: 55,
-    issues: [
-      { id: 1, type: 'Security', message: 'Debug log found in config/db.js', severity: 'high' },
-      { id: 2, type: 'Security', message: 'Debug log found in controllers/authController.js', severity: 'high' },
-      { id: 3, type: 'Best Practice', message: 'Unused variable in server.js', severity: 'low' },
-    ]
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [suggestions, setSuggestions] = useState([]);
+  const [statusText, setStatusText] = useState('');
+  const [hasAnalyzed, setHasAnalyzed] = useState(false);
+
+  const handleAnalyze = async () => {
+    if (!repoUrl) return;
+
+    setIsAnalyzing(true);
+    setHasAnalyzed(false);
+    setSuggestions([]);
+
+    try {
+      // Extract owner and repo
+      let url = repoUrl.trim();
+      if (url.endsWith('/')) url = url.slice(0, -1);
+      if (url.endsWith('.git')) url = url.slice(0, -4);
+
+      const parts = url.split('/');
+      const repo = parts.pop();
+      const owner = parts.pop();
+
+      if (!owner || !repo || !url.includes('github.com')) {
+        setStatusText("Invalid GitHub URL format.");
+        setIsAnalyzing(false);
+        return;
+      }
+
+      setStatusText("Fetching repository structure...");
+      const treeUrl = `https://api.github.com/repos/${owner}/${repo}/git/trees/main?recursive=1`;
+      const treeResponse = await fetch(treeUrl);
+
+      if (!treeResponse.ok) {
+        setStatusText("Failed to find repository. Make sure it is public and on the 'main' branch.");
+        setIsAnalyzing(false);
+        return;
+      }
+
+      const treeData = await treeResponse.json();
+      const files = treeData.tree || [];
+
+      // Filter supported files
+      const supportedFiles = files.filter(f =>
+        f.type === 'blob' &&
+        (f.path.endsWith('.js') || f.path.endsWith('.jsx') || f.path.endsWith('.ts') || f.path.endsWith('.tsx') || f.path.endsWith('.py'))
+      );
+
+      if (supportedFiles.length === 0) {
+        setStatusText("No supported code files found to analyze.");
+        setIsAnalyzing(false);
+        return;
+      }
+
+      setStatusText(`Found ${supportedFiles.length} files. Fetching samples...`);
+
+      // Limit to max 3 files to avoid massive payload
+      const filesToAnalyze = supportedFiles.slice(0, 3);
+      let combinedCode = '';
+
+      for (const file of filesToAnalyze) {
+        const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/main/${file.path}`;
+        const rawResponse = await fetch(rawUrl);
+        if (rawResponse.ok) {
+          const code = await rawResponse.text();
+          combinedCode += `// File: ${file.path}\n${code}\n\n`;
+        }
+      }
+
+      if (!combinedCode) {
+        setStatusText("Could not read file contents.");
+        setIsAnalyzing(false);
+        return;
+      }
+
+      setStatusText("Moo-ntor is analyzing code quality...");
+
+      // Send to Gemini
+      const analysisResult = await getStaticAnalysis(combinedCode, 'javascript');
+
+      if (analysisResult && analysisResult.suggestions) {
+        setSuggestions(analysisResult.suggestions);
+      } else {
+        setSuggestions(["*Mooo...* I couldn't find anything to suggest. The code looks okay or I got confused!"]);
+      }
+
+      setStatusText('');
+      setHasAnalyzed(true);
+
+    } catch (error) {
+      console.error(error);
+      setStatusText("An error occurred during analysis.");
+    }
+
+    setIsAnalyzing(false);
   };
 
   return (
-    <div className="min-h-screen bg-[#030712] text-slate-200 p-8 font-sans">
-      {/* Header Section */}
-      <div className="max-w-6xl mx-auto mb-12 text-center">
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent mb-4">
-          Repo Analyzer <span className="text-white">🔍</span>
-        </h1>
-        <p className="text-slate-400 mb-8">Analyze your GitHub repository for security flaws and code quality in seconds.</p>
-        
-        <div className="flex max-w-2xl mx-auto gap-2 p-2 bg-slate-900/50 border border-slate-800 rounded-2xl backdrop-blur-md">
-          <div className="flex items-center pl-3 flex-1">
-            <Search className="text-slate-500 w-5 h-5" />
-            <input 
-              type="text" 
-              placeholder="https://github.com/user/repo"
-              className="bg-transparent border-none outline-none w-full px-3 py-2 text-sm focus:ring-0"
-              value={repoUrl}
-              onChange={(e) => setRepoUrl(e.target.value)}
-            />
-          </div>
-          <button className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2 rounded-xl font-medium transition-all duration-200 shadow-lg shadow-indigo-500/20">
-            Analyze
-          </button>
-        </div>
+    <div style={{ padding: '40px 20px', minHeight: 'calc(100vh - 80px)', position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      {/* Fun background props */}
+      <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', zIndex: 0, pointerEvents: 'none' }}>
+        <PropsList.BlockyCrystal style={{ position: 'absolute', top: '150px', left: '10%', opacity: 0.8 }} className="animate-float" />
+        <PropsList.PixelChest style={{ position: 'absolute', top: '250px', right: '10%', transform: 'scale(1.2)', opacity: 0.9, animationDelay: '1s' }} className="animate-float" />
+        <PropsList.BlockyPortal style={{ position: 'absolute', bottom: '10%', left: '20%', opacity: 0.3, transform: 'scale(1.5)' }} className="animate-float" />
       </div>
 
-      {/* Results Grid */}
-      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
-        
-        {/* Score Card */}
-        <div className="bg-slate-900/40 border border-slate-800 p-6 rounded-3xl flex flex-col items-center justify-center text-center">
-          <div className="relative w-32 h-32 flex items-center justify-center mb-4">
-            <svg className="w-full h-full -rotate-90">
-              <circle cx="64" cy="64" r="58" fill="transparent" stroke="#1e293b" strokeWidth="8" />
-              <circle cx="64" cy="64" r="58" fill="transparent" stroke="#6366f1" strokeWidth="8" 
-                strokeDasharray="364" strokeDashoffset={364 - (364 * results.score) / 100} strokeLinecap="round" />
-            </svg>
-            <span className="absolute text-3xl font-bold">{results.score}</span>
-          </div>
-          <h3 className="text-lg font-semibold">Health Score</h3>
-          <p className="text-sm text-slate-500 mt-1">Based on 12 security rules</p>
-        </div>
+      <h1 style={{
+        fontSize: '3.5rem',
+        marginBottom: '20px',
+        fontWeight: '900',
+        color: 'var(--text-primary)',
+        fontFamily: "'Outfit', sans-serif",
+        textAlign: 'center',
+        position: 'relative',
+        zIndex: 10
+      }}>
+        Repo Analyzer <span style={{ color: 'var(--accent-purple)' }}>🔍</span>
+      </h1>
 
-        {/* Stats Bento Box */}
-        <div className="md:col-span-2 grid grid-cols-2 gap-4">
-          <div className="bg-slate-900/40 border border-slate-800 p-6 rounded-3xl flex items-center gap-4">
-            <div className="p-3 bg-indigo-500/10 rounded-2xl"><FileCode className="text-indigo-400" /></div>
-            <div>
-              <p className="text-slate-500 text-xs uppercase tracking-wider font-bold">Files Scanned</p>
-              <p className="text-2xl font-bold">{results.filesScanned}</p>
-            </div>
-          </div>
-          <div className="bg-slate-900/40 border border-slate-800 p-6 rounded-3xl flex items-center gap-4">
-            <div className="p-3 bg-rose-500/10 rounded-2xl"><ShieldAlert className="text-rose-400" /></div>
-            <div>
-              <p className="text-slate-500 text-xs uppercase tracking-wider font-bold">Critical Issues</p>
-              <p className="text-2xl font-bold text-rose-400">{results.issues.length}</p>
-            </div>
-          </div>
-          <div className="bg-slate-900/40 border border-slate-800 p-6 rounded-3xl col-span-2 flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Activity className="text-emerald-400" />
-              <span className="font-medium">Optimization Status</span>
-            </div>
-            <span className="px-3 py-1 bg-emerald-500/10 text-emerald-400 rounded-full text-xs border border-emerald-500/20">Stable</span>
-          </div>
-        </div>
+      <p style={{ color: 'var(--text-secondary)', fontSize: '1.2rem', marginBottom: '40px', position: 'relative', zIndex: 10, textAlign: 'center', maxWidth: '600px', fontWeight: 500 }}>
+        Paste a GitHub repository link. Our Moo-ntor will fetch the code and provide AI-powered quality suggestions!
+      </p>
 
-        {/* Detailed Issues List */}
-        <div className="md:col-span-3 mt-4">
-          <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
-            <AlertCircle className="text-indigo-400" /> Analysis Findings
-          </h2>
-          <div className="space-y-3">
-            {results.issues.map((issue) => (
-              <div key={issue.id} className="group bg-slate-900/40 border border-slate-800 p-4 rounded-2xl flex items-center justify-between hover:border-slate-700 transition-colors">
-                <div className="flex items-center gap-4">
-                  <CheckCircle2 className="text-slate-600 group-hover:text-indigo-400 transition-colors" />
-                  <div>
-                    <p className="font-medium text-slate-200">{issue.message}</p>
-                    <span className="text-xs text-slate-500 uppercase">{issue.type}</span>
-                  </div>
-                </div>
-                <button className="text-xs font-semibold text-indigo-400 hover:underline">View File</button>
+      {/* Search Bar */}
+      <div className="glass-card" style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px',
+        width: '100%',
+        maxWidth: '800px',
+        padding: '12px 24px',
+        borderRadius: '9999px',
+        position: 'relative',
+        zIndex: 10,
+        marginBottom: '40px',
+        background: 'var(--bg-secondary)',
+        border: '4px solid var(--color-sky)'
+      }}>
+        <Github size={28} className="text-cyan" />
+        <input
+          type="text"
+          placeholder="https://github.com/username/repository"
+          value={repoUrl}
+          onChange={(e) => setRepoUrl(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleAnalyze()}
+          style={{
+            flex: 1,
+            background: 'transparent',
+            border: 'none',
+            outline: 'none',
+            color: 'var(--text-primary)',
+            fontSize: '1.2rem',
+            fontFamily: "'Fira Code', monospace"
+          }}
+        />
+        <button
+          className="btn btn-primary"
+          onClick={handleAnalyze}
+          disabled={isAnalyzing}
+          style={{ padding: '12px 32px', fontSize: '1.2rem', borderRadius: '9999px' }}
+        >
+          {isAnalyzing ? <span className="flex items-center gap-2"><Loader2 size={18} className="animate-spin" /> Analyzing...</span> : 'Analyze'}
+        </button>
+      </div>
+
+      {/* Mascot Area */}
+      <div style={{ position: 'relative', zIndex: 10, flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyItems: 'center', width: '100%', maxWidth: '800px' }}>
+
+        {statusText && (
+          <div style={{
+            background: 'var(--color-sky)',
+            color: '#fff',
+            padding: '12px 24px',
+            borderRadius: '16px',
+            fontWeight: 'bold',
+            marginBottom: '24px',
+            animation: 'pulse-glow 2s infinite',
+            border: '4px solid var(--color-purple-dark)',
+            fontFamily: "'Outfit', sans-serif"
+          }}>
+            {statusText}
+          </div>
+        )}
+
+        {/* We wrap Mascot in a container that looks like a stage */}
+        <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+          <div style={{ width: '100%', maxWidth: '600px', height: '400px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {(isAnalyzing || hasAnalyzed || statusText) ? (
+              <Mascot
+                state={isAnalyzing ? 'typing' : 'idle'}
+                isAnalyzing={isAnalyzing}
+                suggestions={suggestions}
+              />
+            ) : (
+              <div style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>
+                <Mascot state="idle" isAnalyzing={false} suggestions={["*Mooo...* I'm ready! Paste a repo link above and I'll review its code!"]} />
               </div>
-            ))}
+            )}
           </div>
         </div>
-
       </div>
+
     </div>
   );
-};
-
-export default RepoAnalyzer;
+}
