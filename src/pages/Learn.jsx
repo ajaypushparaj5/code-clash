@@ -23,7 +23,7 @@ export default function Learn() {
     };
 
     const neonColors = [
-        '#00E5FF', '#FF00AA', '#9D00FF', '#00FF66', '#FFD700', '#FF3300'
+        'var(--color-light)', 'var(--color-muted)', 'var(--color-deep)', 'var(--accent-green)', '#6366f1', '#a855f7'
     ];
 
     return (

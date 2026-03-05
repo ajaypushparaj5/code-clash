@@ -34,7 +34,7 @@ export default function Home() {
                     <PropsList.BlockyCoin style={{ position: 'absolute', top: '-30px', left: '80px' }} className="animate-pulse" />
                 </div>
 
-                <div style={{ position: 'relative', zIndex: 10, background: 'rgba(22, 27, 34, 0.85)', padding: '50px', borderRadius: '16px', backdropFilter: 'blur(16px)', border: '4px solid rgba(255,255,255,0.1)', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}>
+                <div style={{ position: 'relative', zIndex: 10, background: 'var(--bg-card)', padding: '50px', borderRadius: '16px', backdropFilter: 'blur(16px)', border: '4px solid rgba(255,255,255,0.1)', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}>
                     <h1 style={{
                         fontSize: '4.5rem',
                         marginBottom: '24px',
@@ -43,7 +43,7 @@ export default function Home() {
                     }}>
                         Master Code like a <br />
                         <span style={{
-                            background: 'linear-gradient(90deg, var(--accent-cyan), var(--accent-green))',
+                            background: 'linear-gradient(90deg, var(--accent-cyan), var(--color-muted))',
                             WebkitBackgroundClip: 'text',
                             WebkitTextFillColor: 'transparent',
                             textShadow: 'var(--glow-cyan)',
