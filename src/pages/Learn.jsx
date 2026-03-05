@@ -217,7 +217,7 @@ export default function Learn() {
                                     </button>
                                     <button
                                         className="crystal-btn"
-                                        onClick={() => navigate(`/practice/${course.id}`)}
+                                        onClick={() => navigate(`/code/${course.id}`)}
                                     >
                                         <Code size={16} /> Practice
                                     </button>
