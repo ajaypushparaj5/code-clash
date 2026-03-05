@@ -9,6 +9,7 @@ import { AuthProvider } from './contexts/AuthContext'
 import LearnCourse from './pages/LearnCourse'
 import RepoAnalyzer from "./pages/RepoAnalyzer"
 import Translate from './pages/Translate'
+import BugHunt from './pages/BugHunt'
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           <Route path="code" element={<CodeAnalysis />} />
           <Route path="code/:courseId" element={<CodeAnalysis />} />
           <Route path="learn" element={<Learn />} />
+          <Route path="bughunt" element={<BugHunt />} />
           <Route path="leaderboard" element={<Leaderboard />} />
           <Route path="repo-analyzer" element={<RepoAnalyzer />} />
           <Route path="auth" element={<Auth />} />

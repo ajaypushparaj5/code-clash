@@ -13,6 +13,7 @@ export default function Navbar() {
         { name: 'Home', path: '/' },
         { name: 'Code', path: '/code' },
         { name: 'Learn', path: '/learn' },
+        { name: 'Bug Hunt', path: '/bughunt' },
         { name: 'Repo Analyzer', path: '/repo-analyzer' },
         { name: 'Translate', path: '/translate' },
         { name: 'Leaderboard', path: '/leaderboard' },
