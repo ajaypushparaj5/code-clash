@@ -1,47 +1,103 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Editor from '@monaco-editor/react';
-import { Target, CheckCircle2, XCircle, Code, Zap } from 'lucide-react';
+import { Target, CheckCircle2, XCircle, Code, Zap, Loader2 } from 'lucide-react';
+import { supabase } from '../lib/supabaseClient';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function Practice() {
-    const [code, setCode] = useState('/**\\n * @param {number[]} nums\\n * @param {number} target\\n * @return {number[]}\\n */\\nvar twoSum = function(nums, target) {\\n    \\n};');
+    const [questions, setQuestions] = useState([]);
+    const [currentIdx, setCurrentIdx] = useState(0);
+    const [loading, setLoading] = useState(true);
+    const [code, setCode] = useState('');
     const [status, setStatus] = useState('idle'); // idle, testing, passed, failed
+    const { allotXP, user } = useAuth();
 
-    const handleRun = () => {
+    const currentQuestion = questions[currentIdx];
+
+    useEffect(() => {
+        fetchQuestions();
+    }, []);
+
+    const fetchQuestions = async () => {
+        setLoading(true);
+        const { data, error } = await supabase
+            .from('coding_questions')
+            .select('*');
+
+        if (data && data.length > 0) {
+            setQuestions(data);
+            setCode(data[0].starter_code || '');
+        }
+        setLoading(false);
+    };
+
+    const handleRun = async () => {
+        if (!currentQuestion) return;
+
         setStatus('testing');
-        setTimeout(() => {
-            // Mock passing condition
-            if (code.includes('for') || code.includes('Map')) {
+
+        // Simulating testing logic for now (later integrated with Gemini)
+        setTimeout(async () => {
+            const isCorrect = code.includes('return') || code.length > 50; // Mock check
+
+            if (isCorrect) {
                 setStatus('passed');
+                if (user) {
+                    await allotXP(50); // Standard XP reward for easy/medium
+                }
             } else {
                 setStatus('failed');
             }
         }, 1500);
     };
 
+    if (loading) {
+        return (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '60vh', color: 'var(--accent-cyan)' }}>
+                <Loader2 className="animate-spin" size={48} />
+                <p style={{ marginTop: '16px', fontSize: '1.2rem' }}>Loading Challenge...</p>
+            </div>
+        );
+    }
+
+    if (!currentQuestion) {
+        return (
+            <div style={{ textAlign: 'center', padding: '100px' }}>
+                <h2 style={{ color: 'var(--text-secondary)' }}>No challenges found in database.</h2>
+            </div>
+        );
+    }
+
     return (
         <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 400px) 1fr', gap: '24px', height: 'calc(100vh - 120px)' }}>
             {/* Left Panel: Problem Statement */}
             <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', overflowY: 'auto', padding: '24px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                    <span style={{ background: 'rgba(0, 255, 102, 0.1)', color: 'var(--accent-green)', padding: '4px 12px', borderRadius: '16px', fontSize: '0.85rem', fontWeight: 'bold' }}>Easy</span>
-                    <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Array • Hash Table</span>
+                    <span style={{
+                        background: currentQuestion.difficulty === 'Easy' ? 'rgba(0, 255, 102, 0.1)' : 'rgba(255, 171, 0, 0.1)',
+                        color: currentQuestion.difficulty === 'Easy' ? 'var(--accent-green)' : '#FFAB00',
+                        padding: '4px 12px',
+                        borderRadius: '16px',
+                        fontSize: '0.85rem',
+                        fontWeight: 'bold'
+                    }}>
+                        {currentQuestion.difficulty || 'Medium'}
+                    </span>
+                    <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{currentQuestion.language}</span>
                 </div>
-                <h2 style={{ fontSize: '1.8rem', marginBottom: '24px', fontWeight: 800 }}>1. Two Sum</h2>
+                <h2 style={{ fontSize: '1.8rem', marginBottom: '24px', fontWeight: 800 }}>{currentQuestion.title}</h2>
 
-                <div style={{ color: 'var(--text-secondary)', fontSize: '1rem', lineHeight: 1.6, marginBottom: '24px' }}>
-                    <p style={{ marginBottom: '16px' }}>Given an array of integers <code>nums</code> and an integer <code>target</code>, return indices of the two numbers such that they add up to <code>target</code>.</p>
-                    <p style={{ marginBottom: '16px' }}>You may assume that each input would have exactly one solution, and you may not use the same element twice.</p>
-                    <p>You can return the answer in any order.</p>
+                <div style={{ color: 'var(--text-secondary)', fontSize: '1rem', lineHeight: 1.6, marginBottom: '24px' }} dangerouslySetInnerHTML={{ __html: currentQuestion.description }}>
                 </div>
 
-                <div style={{ background: 'var(--bg-primary)', padding: '16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)', marginBottom: '24px' }}>
-                    <p style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '8px' }}>Example 1:</p>
-                    <p className="code-font" style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                        <strong>Input:</strong> nums = [2,7,11,15], target = 9<br />
-                        <strong>Output:</strong> [0,1]<br />
-                        <strong>Explanation:</strong> Because nums[0] + nums[1] == 9, we return [0, 1].
-                    </p>
-                </div>
+                {currentQuestion.example && (
+                    <div style={{ background: 'var(--bg-primary)', padding: '16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)', marginBottom: '24px' }}>
+                        <p style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '8px' }}>Example:</p>
+                        <p className="code-font" style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', whiteSpace: 'pre-wrap' }}>
+                            {currentQuestion.example}
+                        </p>
+                    </div>
+                )}
             </div>
 
             {/* Right Panel: Editor + Results */}
@@ -51,7 +107,7 @@ export default function Practice() {
                 <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', padding: 0 }}>
                     <div style={{ padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-secondary)' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                            <Code size={16} /> JavaScript
+                            <Code size={16} /> {currentQuestion.language || 'Code'}
                         </div>
                         <button className="btn btn-success" onClick={handleRun} disabled={status === 'testing'} style={{ padding: '6px 16px', fontSize: '0.9rem' }}>
                             {status === 'testing' ? 'Testing...' : 'Run & Submit'}
@@ -60,7 +116,7 @@ export default function Practice() {
                     <div style={{ flex: 1 }}>
                         <Editor
                             height="100%"
-                            defaultLanguage="javascript"
+                            defaultLanguage={(currentQuestion.language || 'javascript').toLowerCase()}
                             theme="vs-dark"
                             value={code}
                             onChange={(val) => setCode(val)}

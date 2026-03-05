@@ -1,33 +1,26 @@
-import { useState } from 'react';
-import { ChevronRight, BrainCircuit, Code, Play } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { ChevronRight, BrainCircuit, Code } from 'lucide-react';
 import { Link } from 'react-router-dom';
-
-const MOCK_FLASHCARDS = [
-    {
-        id: 1,
-        question: "What is Time Complexity and Big O Notation?",
-        concept: "Algorithmic Efficiency",
-        explanation: "Big O notation describes how the runtime or spatial requirements of an algorithm grow as the input size grows. It focuses on the worst-case scenario.",
-        code: "// O(1) - Constant\\nconst getFirst = (arr) => arr[0];\\n\\n// O(n) - Linear\\nconst findItem = (arr, val) => arr.find(i => i === val);"
-    },
-    {
-        id: 2,
-        question: "How do you detect a cycle in a Linked List?",
-        concept: "Floyd's Tortoise and Hare",
-        explanation: "Use two pointers, one moving at standard speed (tortoise) and another moving twice as fast (hare). If they ever meet, there is a cycle.",
-        code: "function hasCycle(head) {\\n  let slow = head, fast = head;\\n  while (fast && fast.next) {\\n    slow = slow.next;\\n    fast = fast.next.next;\\n    if (slow === fast) return true;\\n  }\\n  return false;\\n}"
-    },
-    {
-        id: 3,
-        question: "What is Dynamic Programming?",
-        concept: "Overlapping Subproblems",
-        explanation: "An optimization technique that solves complex problems by breaking them down into simpler subproblems and storing the results to avoid redundant computations (memoization).",
-        code: "const memo = {};\\nfunction fib(n) {\\n  if (n <= 1) return n;\\n  if (memo[n]) return memo[n];\\n  memo[n] = fib(n-1) + fib(n-2);\\n  return memo[n];\\n}"
-    }
-];
+import { supabase } from '../lib/supabaseClient';
 
 export default function Learn() {
+    const [cards, setCards] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [flipped, setFlipped] = useState({});
+
+    useEffect(() => {
+        fetchFlashcards();
+    }, []);
+
+    const fetchFlashcards = async () => {
+        setLoading(true);
+        const { data, error } = await supabase
+            .from('flashcards')
+            .select('*');
+
+        if (data) setCards(data);
+        setLoading(false);
+    };
 
     const toggleFlip = (id) => {
         setFlipped(prev => ({ ...prev, [id]: !prev[id] }));
@@ -44,7 +37,12 @@ export default function Learn() {
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '32px' }}>
-                {MOCK_FLASHCARDS.map(card => (
+                {loading ? (
+                    <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '100px', color: 'var(--accent-cyan)' }}>
+                        <BrainCircuit className="animate-pulse" size={48} />
+                        <p style={{ marginTop: '16px' }}>Loading Knowledge Bases...</p>
+                    </div>
+                ) : cards.map(card => (
                     <div
                         key={card.id}
                         className="flashcard-container"
@@ -70,8 +68,8 @@ export default function Learn() {
                                 border: '2px solid rgba(178, 0, 255, 0.2)'
                             }}>
                                 <span style={{ color: 'var(--accent-purple)', fontWeight: 'bold', letterSpacing: '2px', marginBottom: '16px', fontSize: '0.9rem' }}>QUESTION</span>
-                                <h3 style={{ fontSize: '1.5rem', lineHeight: 1.4 }}>{card.question}</h3>
-                                <p style={{ color: 'var(--text-secondary)', marginTop: '24px', fontSize: '0.9rem' }}><ChevronRight className="animate-pulse" style={{ verticalAlign: 'middle' }} /> Click to reveal</p>
+                                <h3 style={{ fontSize: '1.5rem', lineHeight: 1.4, padding: '0 20px' }}>{card.question}</h3>
+                                <p style={{ color: 'var(--text-secondary)', marginTop: '24px', fontSize: '0.9rem' }}><ChevronRight className="animate-pulse" size={16} /> Click to reveal</p>
                             </div>
 
                             {/* Back */}
@@ -82,17 +80,17 @@ export default function Learn() {
                                 background: 'linear-gradient(145deg, rgba(22, 27, 34, 0.9), rgba(11, 14, 20, 0.9))',
                                 border: '2px solid rgba(0, 229, 255, 0.2)'
                             }}>
-                                <div style={{ flex: 1, overflowY: 'auto' }}>
-                                    <div style={{ color: 'var(--accent-cyan)', fontWeight: 'bold', marginBottom: '8px', fontSize: '0.85rem' }}>CONCEPT: {card.concept.toUpperCase()}</div>
-                                    <p style={{ fontSize: '0.95rem', marginBottom: '16px', color: 'var(--text-primary)' }}>{card.explanation}</p>
+                                <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
+                                    <div style={{ color: 'var(--accent-cyan)', fontWeight: 'bold', marginBottom: '8px', fontSize: '0.85rem' }}>CONCEPT: {card.concept?.toUpperCase()}</div>
+                                    <p style={{ fontSize: '0.95rem', marginBottom: '16px', color: 'var(--text-primary)', lineHeight: 1.5 }}>{card.explanation}</p>
 
                                     <div style={{ background: 'var(--bg-primary)', padding: '12px', borderRadius: '8px', fontSize: '0.8rem', border: '1px solid rgba(255,255,255,0.05)' }}>
-                                        <pre className="code-font" style={{ whiteSpace: 'pre-wrap' }}><code>{card.code}</code></pre>
+                                        <pre className="code-font" style={{ whiteSpace: 'pre-wrap', color: 'var(--accent-green)' }}><code>{card.code}</code></pre>
                                     </div>
                                 </div>
 
-                                <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.1)', textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
-                                    <Link to="/practice" className="btn btn-primary" style={{ width: '100%', display: 'flex', gap: '8px', padding: '12px' }}>
+                                <div style={{ marginTop: '16px', padding: '16px', borderTop: '1px solid rgba(255,255,255,0.1)', textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
+                                    <Link to="/practice" className="btn btn-primary" style={{ width: '100%', display: 'flex', gap: '8px', padding: '12px', justifyContent: 'center' }}>
                                         <Code size={18} /> Practice Concept
                                     </Link>
                                 </div>
