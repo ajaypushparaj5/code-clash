@@ -18,6 +18,7 @@ function App() {
           <Route path="code" element={<CodeAnalysis />} />
           <Route path="learn" element={<Learn />} />
           <Route path="practice" element={<Practice />} />
+          <Route path="practice/:courseId" element={<Practice />} />
           <Route path="leaderboard" element={<Leaderboard />} />
           <Route path="auth" element={<Auth />} />
           <Route path="/learn/:courseId" element={<LearnCourse />} />
