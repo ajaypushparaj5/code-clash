@@ -7,7 +7,8 @@ import Practice from './pages/Practice'
 import Leaderboard from './pages/Leaderboard'
 import Auth from './pages/Auth'
 import { AuthProvider } from './contexts/AuthContext'
-import LearnCourse from './pages/LearnCourse';
+import LearnCourse from './pages/LearnCourse'
+import Translate from './pages/Translate'
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Route path="leaderboard" element={<Leaderboard />} />
           <Route path="auth" element={<Auth />} />
           <Route path="/learn/:courseId" element={<LearnCourse />} />
+          <Route path="translate" element={<Translate />} />
         </Route>
       </Routes>
     </AuthProvider>

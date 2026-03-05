@@ -12,14 +12,41 @@ const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 export const getDynamicAnalysis = async (code, language) => {
   if (!apiKey) return { error: "API Key missing" };
 
-  const prompt = `Analyze this JAVASCRIPT code block found within curly braces.
-  Focus ONLY on logic errors, syntax mistakes, or keyword misuse within this specific block.
-  Be extremely concise (max 2 bullet points). 
-  
-  Code Block:
-  ${code}
-  
-  Return JSON format: { "issues": [{ "title": "...", "type": "error|warning", "message": "..." }] }`;
+  const prompt = `
+You are a real-time code assistant inside a gamified coding platform.
+
+Analyze ONLY the provided JavaScript code block.
+
+Rules:
+- Focus ONLY on syntax errors, wrong keywords, or clear logic mistakes.
+- Do NOT explain theory.
+- Each message must be under 15 words.
+- Maximum 2 issues.
+- Short, actionable feedback.
+- Friendly game-style tone.
+
+Code Block:
+${code}
+
+Return STRICT JSON ONLY:
+
+{
+  "issues": [
+    {
+      "title": "Short label",
+      "type": "error | warning",
+      "message": "Short actionable hint"
+    }
+  ]
+}
+
+Examples of good feedback:
+"title": "Missing Semicolon"
+"message": "Add ';' after statement"
+
+"title": "Wrong Variable Scope"
+"message": "Use 'let' instead of 'var' here"
+`;
 
   try {
     const result = await model.generateContent(prompt);
@@ -39,33 +66,72 @@ export const getDynamicAnalysis = async (code, language) => {
 export const getStaticAnalysis = async (code, language) => {
   if (!apiKey) return { error: "API Key missing" };
 
-  const prompt = `Act as a senior software mentor. Analyze the following JAVASCRIPT code.
-  Focus on:
-  1. Time Complexity (Big O)
-  2. Space Complexity (Big O)
-  3. Architectural or algorithmic improvements.
-  
-  Provide a 'Teaching' perspective - explain WHY a change is better.
-  Suggest a more 'Optimal Solution'.
-  Suggest the Big O notation clearly.
-  
-  Code:
-  ${code}
-  
-  Return JSON format: { 
-    "complexity": { "time": "...", "space": "..." },
-    "analysis": "...",
-    "suggestion": "...",
-    "optimalCode": "..."
-  }`;
+  const prompt = `
+You are the "Moo-ntor", a highly intelligent but playful Minecraft-style cow who teaches coding in a gamified platform.
+
+Analyze the JavaScript code and provide 3 to 5 short, comic-book style suggestions.
+
+STRICT RULES:
+- Exactly 3 to 5 suggestions in an array.
+- Start each suggestion playfully. You can use text like "*Mooo...*", "*sniffs code*", "*chews cud*", etc.
+- Keep each suggestion under 2 sentences.
+- Use simple, encouraging language.
+- Focus on time/space complexity, cleaner syntax, or logic improvement.
+
+Code:
+${code}
+
+Return STRICT JSON:
+{
+  "suggestions": [
+    "Mooo... *chews cud* I see a nested loop here! You might want to use a HashMap to make this O(n) instead of O(n²).",
+    "*sniffs* This variable could be a 'const' instead of 'let'. It keeps the grass greener!",
+    "Mooo! Great job overall. Just remember to return early to save processing time!"
+  ]
+}
+`;
 
   try {
     const result = await model.generateContent(prompt);
-    const text = result.response.text();
-    const jsonStr = text.match(/\{[\s\S]*\}/)?.[0] || text;
-    return JSON.parse(jsonStr);
-  } catch (err) {
-    console.error("Gemini Static Error:", err);
-    return null;
+    let text = result.response.text();
+
+    text = text.replace(/\`\`\`json/g, '').replace(/\`\`\`/g, '').trim();
+
+    return JSON.parse(text);
+  } catch (error) {
+    console.error("Gemini API Error (Static):", error);
+    return { error: 'Failed to analyze code.' };
+  }
+};
+
+/**
+ * Translates code from one language to another strictly without extra conversational text.
+ */
+export const translateCode = async (code, targetLanguage) => {
+  if (!apiKey) return { error: "API Key missing" };
+
+  const prompt = `
+You are a highly accurate code translation engine. 
+Translate the following code into ${targetLanguage}.
+
+STRICT RULES:
+- Provide ONLY the translated code.
+- Do NOT include markdown code fences (like \`\`\`python).
+- Do NOT include any explanations, introductory text, or concluding remarks.
+- Strictly output the raw code.
+
+Code to translate:
+${code}
+`;
+
+  try {
+    const result = await model.generateContent(prompt);
+    let text = result.response.text();
+    // In case the model still outputs markdown fences despite instructions
+    text = text.replace(/^\`\`\`[a-zA-Z]*\n/, '').replace(/\n\`\`\`$/, '');
+    return text.trim();
+  } catch (error) {
+    console.error("Gemini API Error (Translate):", error);
+    return "// Failed to translate code. Please try again.";
   }
 };

@@ -14,6 +14,7 @@ export default function Navbar() {
         { name: 'Code', path: '/code' },
         { name: 'Learn', path: '/learn' },
         { name: 'Practice', path: '/practice' },
+        { name: 'Translate', path: '/translate' },
         { name: 'Leaderboard', path: '/leaderboard' },
     ];
 
