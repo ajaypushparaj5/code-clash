@@ -1,23 +1,27 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Fira+Code:wght@400;500&display=swap');
 
 :root {
-  /* Core Gamified Colors from Reference */
-  --bg-primary: #0B0E14;
-  /* Deep space navy */
-  --bg-secondary: #161B22;
-  --bg-card: rgba(22, 27, 34, 0.7);
+  /* New Blue Oceanic Palette */
+  --color-darkest: #0A1931;
+  --color-deep: #1A3D63;
+  --color-muted: #4A7FA7;
+  --color-light: #B3CFE5;
+  --color-white: #F6FAFD;
 
-  --accent-cyan: #00E5FF;
-  --accent-green: #00FF66;
-  --accent-purple: #B200FF;
-  --accent-pink: #FF0066;
+  --bg-primary: var(--color-darkest);
+  --bg-secondary: #0D1B2A;
+  --bg-card: rgba(26, 61, 99, 0.3);
 
-  --text-primary: #FFFFFF;
-  --text-secondary: #8B949E;
+  --accent-cyan: var(--color-light);
+  --accent-green: #00FFD1;
+  --accent-purple: var(--color-muted);
+  --accent-pink: #FF00E5;
 
-  --glow-cyan: 0 0 15px rgba(0, 229, 255, 0.4);
-  --glow-green: 0 0 15px rgba(0, 255, 102, 0.4);
-  --glow-purple: 0 0 15px rgba(178, 0, 255, 0.4);
+  --text-primary: var(--color-white);
+  --text-secondary: rgba(246, 250, 253, 0.7);
+
+  --glow-cyan: 0 0 15px rgba(179, 207, 229, 0.4);
+  --glow-purple: 0 0 15px rgba(74, 127, 167, 0.4);
 
   --border-radius-sm: 8px;
   --border-radius-md: 16px;
@@ -39,8 +43,9 @@ body {
   color: var(--text-primary);
   line-height: 1.6;
   background-image:
-    radial-gradient(circle at 10% 20%, rgba(0, 229, 255, 0.05) 0%, transparent 40%),
-    radial-gradient(circle at 90% 80%, rgba(178, 0, 255, 0.05) 0%, transparent 40%);
+    radial-gradient(circle at 0% 0%, rgba(26, 61, 99, 0.8) 0%, transparent 50%),
+    radial-gradient(circle at 100% 100%, rgba(10, 25, 49, 0.8) 0%, transparent 50%),
+    linear-gradient(135deg, #0A1931 0%, #1A3D63 100%);
   background-attachment: fixed;
   min-height: 100vh;
 }
@@ -95,21 +100,22 @@ body {
   box-shadow: 0 0 25px rgba(0, 255, 102, 0.6);
 }
 
-/* Base Card Styles */
+/* Base Card Styles - Premium Oceanic Glassmorphism */
 .glass-card {
-  background: var(--bg-card);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(26, 61, 99, 0.4);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(179, 207, 229, 0.15);
   border-radius: var(--border-radius-md);
   padding: 24px;
-  transition: transform var(--transition-bounce), box-shadow var(--transition-fast);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 0 10px rgba(255, 255, 255, 0.05);
+  transition: all var(--transition-bounce);
 }
 
 .glass-card:hover {
-  transform: translateY(-5px);
-  border-color: rgba(0, 229, 255, 0.3);
-  box-shadow: var(--glow-cyan);
+  transform: translateY(-8px) scale(1.01);
+  border-color: rgba(179, 207, 229, 0.4);
+  box-shadow: var(--glow-cyan), 0 15px 45px rgba(0, 0, 0, 0.5);
 }
 
 /* Utilities */
@@ -183,4 +189,122 @@ body {
 
 .animate-pulse {
   animation: pulse-glow 2s infinite;
-}@keyframes spin-slow { 100% { transform: rotate(360deg); } }\n.animate-spin-slow { animation: spin-slow 10s linear infinite; transform-origin: center; }
+}
+
+@keyframes spin-slow {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 10s linear infinite;
+  transform-origin: center;
+}
+
+/* Diamond Crystal Cards */
+.diamond-card-container {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  padding: 40px 0;
+}
+
+.diamond-card {
+  position: relative;
+  width: 300px;
+  background: linear-gradient(180deg, #130a2f 0%, #0c081f 100%);
+  border-radius: 20px;
+  padding: 60px 24px 30px 24px;
+  text-align: center;
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.diamond-card:hover {
+  transform: translateY(-5px);
+}
+
+.diamond-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+  background: var(--card-glow, #00E5FF);
+  filter: blur(20px);
+  opacity: 0.6;
+  z-index: 0;
+}
+
+.diamond-card>* {
+  position: relative;
+  z-index: 1;
+}
+
+.diamond-icon-wrapper {
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 80px;
+  z-index: 2;
+  /* Glowing drop shadow that matches the crystal color */
+  filter: drop-shadow(0 0 15px var(--card-glow, #B200FF));
+}
+
+.diamond-icon-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.diamond-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #fff;
+}
+
+.diamond-desc {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.6;
+  flex-grow: 1;
+}
+
+.diamond-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.diamond-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 500;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.diamond-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--card-glow, #B200FF);
+}
