@@ -2,6 +2,14 @@
 
 CodeClash is an open-source, gamified coding mentor engine that teaches you how to build real logic. It features a vibrant, pixelated GDevelop/Minecraft-inspired light theme, an interactive AI mascot ("Moo-ntor"), and a suite of powerful tools designed to make learning to code fun and engaging.
 
+## 📸 Screenshots
+
+![Landing Page](images/landingpage.png)
+*The vibrant, gamified landing page.*
+
+![Repo Analyzer](images/repo_analyzer.png)
+*The AI-powered Repo Analyzer and Dashboard.*
+
 ## ✨ Features
 
 - **🐄 AI "Moo-ntor" Mascot**: Your personal, pixelated cow programming mentor that provides contextual, real-time code analysis, suggestions, and hints.
@@ -20,6 +28,44 @@ CodeClash is an open-source, gamified coding mentor engine that teaches you how 
 - **AI Engine**: Google Gemini 2.5 Flash API (with a seamless fallback mechanism across multiple API keys)
 - **Icons**: `lucide-react`
 - **Backend/Database**: Supabase (for Auth and Leaderboard XP tracking)
+
+## 🏗️ Architecture & Approach
+
+CodeClash is built with a focused "**Client-Heavy, Serverless Frontend**" architecture:
+- **State & Logic**: The vast majority of the application's logic (test execution, dynamic code evaluation, state management) runs entirely client-side within the React browser environment. This ensures zero latency when a user is typing code or running checks.
+- **AI Integration**: Instead of a heavy Node.js backend to stream AI responses, we communicate directly with the **Google Gemini 2.5 Flash API** from the client via the `@google/generative-ai` SDK. To bypass strict rate limits or quota issues on free tiers, we built a **Seamless API Fallback Mechanism** (`gemini.js`). The app automatically degrades gracefully to Secondary or Tertiary API keys if the Primary key fails.
+- **Styling Methodology**: We explicitly avoided utility frameworks like Tailwind for the core gamified aesthetic. Instead, we use a single, highly-optimized **Vanilla CSS** (`index.css`) file. This allows us to use precise generic class names (like `.glass-card`, `.btn-primary`) and custom CSS variables to quickly build "pixel-art" style borders and thick 3D shadows.
+- **Data Persistence**: We leverage **Supabase** via its JS Client to act as a serverless Backend-as-a-Service (BaaS). It handles user profiles and synchronization of the global XP Leaderboard.
+
+## 📁 Folder Structure
+
+\`\`\`text
+code-clash/
+├── public/                 # Static assets (favicons, etc.)
+├── src/
+│   ├── assets/             # Images, SVGs, and graphics used in the UI
+│   ├── components/         # Reusable UI components
+│   │   ├── Mascot.jsx      # The AI Moo-ntor SVG and animation logic
+│   │   ├── MinecraftProps.jsx # All gamified floating background props
+│   │   └── Navbar.jsx      # The animated top navigation bar
+│   ├── contexts/           # React Context providers (Auth, Theme)
+│   ├── lib/
+│   │   ├── gemini.js       # Core AI integration & Fallback logic
+│   │   └── supabase.js     # Supabase client instantiation
+│   ├── pages/              # Primary route components
+│   │   ├── Home.jsx        # Landing page
+│   │   ├── CodeAnalysis.jsx# Integrated Monaco editor & real-time feedback
+│   │   ├── RepoAnalyzer.jsx# GitHub repo fetching and Dashboard analytics
+│   │   ├── BugHunt.jsx     # Gamified bug-squashing challenges
+│   │   ├── Translate.jsx   # CodeLingo language translator
+│   │   └── Learn.jsx       # 3D interactive flashcards
+│   ├── App.jsx             # Main router and layout wrapper
+│   ├── index.css           # 100% of the Vanilla CSS styling & themes
+│   └── main.jsx            # React root injection
+├── .env                    # Secret API Keys (Gemini, Supabase)
+├── package.json            # Dependencies and scripts
+└── README.md               # You are here!
+\`\`\`
 
 ## 🚀 Getting Started
 
